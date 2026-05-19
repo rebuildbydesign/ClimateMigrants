@@ -1,0 +1,146 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* =========================
+   MAP CONTAINER
+========================= */
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* =========================
+   POPUP BASE STYLES
+========================= */
+.mapboxgl-popup {
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+    z-index: 9999 !important;
+}
+
+.mapboxgl-popup-content {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    padding: 10px;
+    width: 280px !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* CLOSE BUTTON */
+.mapboxgl-popup-close-button {
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mapboxgl-popup-close-button:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* POPUP TIP */
+.mapboxgl-popup-tip {
+    border-top-color: #fff;
+}
+
+/* =========================
+   HOVER TOOLTIP
+========================= */
+#map-tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    pointer-events: none;
+    z-index: 1000;
+    color: #000;
+    max-width: 200px;
+}
+
+/* =========================
+   ARCHETYPE POINT STYLE
+========================= */
+.mapboxgl-canvas-container canvas {
+    outline: none;
+}
+
+/* Make points feel interactive */
+.mapboxgl-canvas {
+    cursor: default;
+}
+
+/* =========================
+   LEGEND (OPTIONAL FUTURE USE)
+========================= */
+#legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: #fff;
+    padding: 10px 12px;
+    border-radius: 6px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+    font-size: 13px;
+    z-index: 10;
+}
+
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+/* color dot */
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 700px) {
+
+    .mapboxgl-popup-content {
+        width: 60vw !important;
+        font-size: 0.85em !important;
+        padding: 8px !important;
+    }
+
+    #map-tooltip {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    #legend {
+        width: 45vw;
+        font-size: 12px;
+    }
+}
