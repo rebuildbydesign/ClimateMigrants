@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta NAME="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archetype Map</title>
 
     <!-- MAPBOX GL -->
@@ -13,35 +13,168 @@
     <!-- MAPBOX GEOCODER -->
     <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
         rel="stylesheet">
+
     <script
-        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js">
+    </script>
 
     <!-- TURF -->
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
 
     <!-- OPTIONAL FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap"
+        rel="stylesheet">
 
     <!-- YOUR STYLES -->
     <link rel="stylesheet" href="styles.css">
+
+    <style>
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: Poppins, Arial, sans-serif;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* =========================
+           LOGO
+        ========================= */
+        #rbd-logo-container {
+            position: absolute;
+            top: 18px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        #rbd-logo {
+            height: 42px;
+        }
+
+        /* =========================
+           TITLE
+        ========================= */
+        #title-container {
+            position: absolute;
+            top: 18px;
+            left: 90px;
+            z-index: 10;
+
+            background: rgba(255,255,255,0.92);
+
+            padding: 10px 16px;
+            border-radius: 10px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        #title-container h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+        #geocoder {
+            position: absolute;
+            top: 90px;
+            left: 20px;
+
+            z-index: 9999;
+            width: 320px;
+        }
+
+        /* =========================
+           TOOLTIP
+        ========================= */
+        #map-tooltip {
+            position: absolute;
+            z-index: 99999;
+
+            pointer-events: none;
+
+            background: rgba(255,255,255,0.97);
+
+            padding: 14px 16px;
+            border-radius: 12px;
+
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+
+            min-width: 280px;
+        }
+
+        /* =========================
+           LEGEND
+        ========================= */
+        #legend {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+
+            z-index: 10;
+
+            background: rgba(255,255,255,0.95);
+
+            padding: 16px;
+            border-radius: 12px;
+
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+
+            min-width: 240px;
+        }
+
+        .legend-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid #333;
+            flex-shrink: 0;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-    <!-- OPTIONAL LOGO (KEEP IF YOU WANT BRANDING) -->
+    <!-- OPTIONAL LOGO -->
     <div id="rbd-logo-container">
         <img src="img/RBD-logo.png" alt="Logo" id="rbd-logo">
     </div>
 
-    <!-- TITLE (OPTIONAL) -->
+    <!-- TITLE -->
     <div id="title-container">
-        <h2 style="font-family:Poppins, Arial; font-weight:600;">
+        <h2>
             Archetype Mapping System
         </h2>
     </div>
 
-    <!-- GEOCODER SEARCH -->
-    <div id="geocoder" style="position:absolute;top:90px;left:19px;z-index:9999;width:320px;"></div>
+    <!-- SEARCH -->
+    <div id="geocoder"></div>
 
     <!-- MAP -->
     <div id="map"></div>
@@ -49,11 +182,12 @@
     <!-- TOOLTIP -->
     <div id="map-tooltip" style="display:none;"></div>
 
-    <!-- =========================
-         LEGEND (ARCHETYPE READY)
-    ========================== -->
+    <!-- LEGEND -->
     <div id="legend">
-        <div class="legend-title">Archetypes</div>
+
+        <div class="legend-title">
+            Archetypes
+        </div>
 
         <div class="legend-item">
             <div class="legend-dot" style="background:#d73027;"></div>
@@ -66,12 +200,12 @@
         </div>
 
         <div class="legend-item">
-            <div class="legend-dot" style="background:#4575b4;"></div>
+            <div class="legend-dot" style="background:#45b4ab;"></div>
             Opportunity
         </div>
 
         <div class="legend-item">
-            <div class="legend-dot" style="background:#91bfdb;"></div>
+            <div class="legend-dot" style="background:#278a2c;"></div>
             Destination
         </div>
 
@@ -84,6 +218,7 @@
             <div class="legend-dot" style="background:#999;"></div>
             Other / Unclassified
         </div>
+
     </div>
 
     <!-- SCRIPT -->
