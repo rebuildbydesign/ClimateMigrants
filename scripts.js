@@ -1,14 +1,28 @@
 mapboxgl.accessToken = 'pk.eyJ1IjoiajAwYnkiLCJhIjoiY2x1bHUzbXZnMGhuczJxcG83YXY4czJ3ayJ9.S5PZpU9VDwLMjoX_0x5FDQ';
-
 // =========================
 // MAP INIT
 // =========================
-var map = new mapboxgl.Map({
+
+// CLIP TO NORTH AMERICA ONLY
+const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/light-v11',
-    center: [-98.5, 39.5],
-    zoom: 4
+
+    style: 'mapbox://styles/j00by/clvx7jcp006zv01ph3miketyz',
+
+    center: [-96, 39],
+    zoom: 4.4,
+
+
+    maxBounds: [
+        [-220.0, -20.0],
+        [-50.0, 74.0]
+    ],
+
+    projection: {
+        name: 'mercator'
+    }
 });
+
 
 // =========================
 // ARCHETYPE DEFINITIONS
@@ -32,10 +46,8 @@ const archetypeColors = {
     "Coastal Destination": "#1a9850"
 };
 
-// =========================
-// TOOLTIP
-// =========================
 const tooltip = document.getElementById('map-tooltip');
+
 
 // =========================
 // LOAD MAP
@@ -43,7 +55,7 @@ const tooltip = document.getElementById('map-tooltip');
 map.on('load', function () {
 
     // =========================
-    // GEOJSON SOURCE
+    // SOURCE
     // =========================
     map.addSource('archetypes', {
         type: 'geojson',
@@ -51,16 +63,14 @@ map.on('load', function () {
     });
 
     // =========================
-    // POINT LAYER
+    // LAYER
     // =========================
     map.addLayer({
         id: 'archetypePoints',
         type: 'circle',
         source: 'archetypes',
         paint: {
-
             'circle-radius': 6,
-
             'circle-stroke-width': 1,
             'circle-stroke-color': '#000',
 
@@ -80,7 +90,7 @@ map.on('load', function () {
     });
 
     // =========================
-    // CREATE FILTER BOX
+    // FILTER BOX (FIXED POSITION)
     // =========================
     const filtersDiv = document.createElement('div');
 
@@ -88,10 +98,12 @@ map.on('load', function () {
 
     filtersDiv.style.position = 'absolute';
 
-    // MOVED LOWER
-    filtersDiv.style.top = '140px';
+    // 🔥 FIX: moved LOWER so it does NOT overlap logo
+    filtersDiv.style.top = '120px';
 
     filtersDiv.style.left = '20px';
+
+    filtersDiv.style.zIndex = '9999';
 
     filtersDiv.style.background = 'rgba(255,255,255,0.96)';
 
@@ -101,19 +113,12 @@ map.on('load', function () {
 
     filtersDiv.style.boxShadow = '0 2px 10px rgba(0,0,0,0.15)';
 
-    filtersDiv.style.zIndex = '9999';
-
     filtersDiv.style.fontFamily = "'Poppins', Arial, sans-serif";
 
     filtersDiv.style.minWidth = '230px';
 
     filtersDiv.innerHTML = `
-
-        <div style="
-            font-size:16px;
-            font-weight:700;
-            margin-bottom:12px;
-        ">
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px;">
             Filter Archetypes
         </div>
 
@@ -145,8 +150,9 @@ map.on('load', function () {
 
     document.body.appendChild(filtersDiv);
 
+
     // =========================
-    // FILTER FUNCTIONALITY
+    // FILTER LOGIC (SAFE)
     // =========================
     const checkboxes = document.querySelectorAll('#filters input');
 
@@ -155,26 +161,14 @@ map.on('load', function () {
         const selected = [];
 
         checkboxes.forEach(cb => {
-
-            if (cb.checked) {
-                selected.push(cb.value);
-            }
-
+            if (cb.checked) selected.push(cb.value);
         });
 
-        // Hide all if none selected
-        if (selected.length === 0) {
-
-            map.setFilter('archetypePoints', [
-                '==',
-                ['get', 'new_archetype'],
-                ''
-            ]);
-
+        if (!selected.length) {
+            map.setFilter('archetypePoints', ['==', ['get', 'new_archetype'], '']);
             return;
         }
 
-        // Apply filter
         map.setFilter('archetypePoints', [
             'in',
             ['get', 'new_archetype'],
@@ -182,16 +176,15 @@ map.on('load', function () {
         ]);
     }
 
-    // Listen for changes
     checkboxes.forEach(cb => {
         cb.addEventListener('change', updateFilters);
     });
 
-    // Initialize
     updateFilters();
 
+
     // =========================
-    // HOVER TOOLTIP
+    // TOOLTIP
     // =========================
     map.on('mousemove', (e) => {
 
@@ -200,11 +193,8 @@ map.on('load', function () {
         });
 
         if (!features.length) {
-
             map.getCanvas().style.cursor = '';
-
             tooltip.style.display = 'none';
-
             return;
         }
 
@@ -213,59 +203,32 @@ map.on('load', function () {
         const p = features[0].properties;
 
         const city = p.NAME || p.name || "Unknown";
-
         const state = p.state || "NA";
-
         const archetype = (p.new_archetype || "").trim();
 
         const color = archetypeColors[archetype] || "#999999";
-
-        const definition =
-            archetypeDefinitions[archetype] || "No definition available";
+        const definition = archetypeDefinitions[archetype] || "No definition available";
 
         tooltip.style.display = 'block';
-
         tooltip.style.left = e.point.x + 15 + 'px';
-
         tooltip.style.top = e.point.y + 15 + 'px';
 
         tooltip.innerHTML = `
-            <div style="
-                font-family:'Apercu Pro', Arial, sans-serif;
-                color:#111;
-            ">
+            <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
 
-                <!-- CITY + STATE -->
-                <div style="
-                    font-size:24px;
-                    font-weight:600;
-                    margin-bottom:8px;
-                ">
+                <div style="font-size:24px;font-weight:600;margin-bottom:8px;">
                     ${city}, ${state}
                 </div>
 
-                <!-- ARCHETYPE -->
-                <div style="
-                    font-size:16px;
-                    margin-bottom:4px;
-                ">
+                <div style="font-size:16px;margin-bottom:4px;">
                     <strong>Climate Migration Archetype:</strong>
-
-                    <span style="
-                        color:${color};
-                        font-weight:700;
-                    ">
+                    <span style="color:${color};font-weight:700;">
                         ${archetype}
                     </span>
                 </div>
 
-                <!-- DEFINITION -->
-                <div style="
-                    font-size:16px;
-                    color:#444;
-                ">
+                <div style="font-size:16px;color:#444;">
                     This archetype is defined as:<br>
-
                     <em>${definition}</em>
                 </div>
 
@@ -273,8 +236,9 @@ map.on('load', function () {
         `;
     });
 
+
     // =========================
-    // CLICK POPUP
+    // POPUP
     // =========================
     map.on('click', (e) => {
 
@@ -287,62 +251,35 @@ map.on('load', function () {
         const p = features[0].properties;
 
         const city = p.NAME || p.name || "Unknown";
-
         const state = p.state || "NA";
-
         const archetype = (p.new_archetype || "").trim();
 
         const color = archetypeColors[archetype] || "#999999";
-
-        const definition =
-            archetypeDefinitions[archetype] || "No definition available";
+        const definition = archetypeDefinitions[archetype] || "No definition available";
 
         new mapboxgl.Popup()
             .setLngLat(e.lngLat)
-
             .setHTML(`
-                <div style="
-                    font-family:'Apercu Pro', Arial, sans-serif;
-                    color:#111;
-                ">
+                <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
 
-                    <!-- CITY + STATE -->
-                    <div style="
-                        font-size:24px;
-                        font-weight:600;
-                        margin-bottom:8px;
-                    ">
+                    <div style="font-size:24px;font-weight:600;margin-bottom:8px;">
                         ${city}, ${state}
                     </div>
 
-                    <!-- ARCHETYPE -->
-                    <div style="
-                        font-size:16px;
-                        margin-bottom:4px;
-                    ">
+                    <div style="font-size:16px;margin-bottom:4px;">
                         <strong>Climate Migration Archetype:</strong>
-
-                        <span style="
-                            color:${color};
-                            font-weight:700;
-                        ">
+                        <span style="color:${color};font-weight:700;">
                             ${archetype}
                         </span>
                     </div>
 
-                    <!-- DEFINITION -->
-                    <div style="
-                        font-size:16px;
-                        color:#444;
-                    ">
+                    <div style="font-size:16px;color:#444;">
                         This archetype is generally considered to be:<br>
-
                         <em>${definition}</em>
                     </div>
 
                 </div>
             `)
-
             .addTo(map);
     });
 
