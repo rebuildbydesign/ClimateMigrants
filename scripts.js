@@ -10,7 +10,7 @@ const map = new mapboxgl.Map({
     style: 'mapbox://styles/j00by/clvx7jcp006zv01ph3miketyz',
 
     center: [-96, 39],
-    zoom: 4.4,
+    zoom: 4.2,
 
 
     maxBounds: [
@@ -76,7 +76,7 @@ map.on('load', function () {
 
             'circle-color': [
                 'match',
-                ['to-string', ['get', 'new_archetype']],
+                ['to-string', ['get', 'archetype']],
 
                 'Risk', '#d73027',
                 'Origin', '#fc8d59',
@@ -165,13 +165,13 @@ map.on('load', function () {
         });
 
         if (!selected.length) {
-            map.setFilter('archetypePoints', ['==', ['get', 'new_archetype'], '']);
+            map.setFilter('archetypePoints', ['==', ['get', 'archetype'], '']);
             return;
         }
 
         map.setFilter('archetypePoints', [
             'in',
-            ['get', 'new_archetype'],
+            ['get', 'archetype'],
             ['literal', selected]
         ]);
     }
@@ -203,8 +203,8 @@ map.on('load', function () {
         const p = features[0].properties;
 
         const city = p.NAME || p.name || "Unknown";
-        const state = p.state || "NA";
-        const archetype = (p.new_archetype || "").trim();
+        const state = p.STATE_NAME || "NA";
+        const archetype = (p.archetype || "").trim();
 
         const color = archetypeColors[archetype] || "#999999";
         const definition = archetypeDefinitions[archetype] || "No definition available";
@@ -251,8 +251,8 @@ map.on('load', function () {
         const p = features[0].properties;
 
         const city = p.NAME || p.name || "Unknown";
-        const state = p.state || "NA";
-        const archetype = (p.new_archetype || "").trim();
+        const state = p.STATE_NAME || "NA";
+        const archetype = (p.archetype || "").trim();
 
         const color = archetypeColors[archetype] || "#999999";
         const definition = archetypeDefinitions[archetype] || "No definition available";
