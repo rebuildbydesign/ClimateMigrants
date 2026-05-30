@@ -29,7 +29,6 @@ const map = new mapboxgl.Map({
 // =========================
 const archetypeDefinitions = {
     "Destination": "Climate safe and growing",
-    "Coastal Destination": "Climate safe coastal growth area",
     "Opportunity": "Climate safe but not growing",
     "Risk": "Not climate safe but growing",
     "Origin": "Not climate safe and not growing"
@@ -42,8 +41,7 @@ const archetypeColors = {
     "Risk": "#d73027",
     "Origin": "#fc8d59",
     "Opportunity": "#45b4ab",
-    "Destination": "#278a2c",
-    "Coastal Destination": "#1a9850"
+    "Destination": "#278a2c"
 };
 
 const tooltip = document.getElementById('map-tooltip');
@@ -82,8 +80,6 @@ map.on('load', function () {
                 'Origin', '#fc8d59',
                 'Opportunity', '#45b4ab',
                 'Destination', '#278a2c',
-                'Coastal Destination', '#1a9850',
-
                 '#999999'
             ]
         }
@@ -142,10 +138,6 @@ map.on('load', function () {
             Destination
         </label>
 
-        <label style="display:flex;align-items:center;gap:10px;">
-            <input type="checkbox" value="Coastal Destination" checked>
-            Coastal Destination
-        </label>
     `;
 
     document.body.appendChild(filtersDiv);
@@ -186,55 +178,38 @@ map.on('load', function () {
     // =========================
     // TOOLTIP
     // =========================
-    map.on('mousemove', (e) => {
+   map.on('mousemove', (e) => {
 
-        const features = map.queryRenderedFeatures(e.point, {
-            layers: ['archetypePoints']
-        });
-
-        if (!features.length) {
-            map.getCanvas().style.cursor = '';
-            tooltip.style.display = 'none';
-            return;
-        }
-
-        map.getCanvas().style.cursor = 'pointer';
-
-        const p = features[0].properties;
-
-        const city = p.NAME || p.name || "Unknown";
-        const state = p.STATE_NAME || "NA";
-        const archetype = (p.archetype || "").trim();
-
-        const color = archetypeColors[archetype] || "#999999";
-        const definition = archetypeDefinitions[archetype] || "No definition available";
-
-        tooltip.style.display = 'block';
-        tooltip.style.left = e.point.x + 15 + 'px';
-        tooltip.style.top = e.point.y + 15 + 'px';
-
-        tooltip.innerHTML = `
-            <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
-
-                <div style="font-size:24px;font-weight:600;margin-bottom:8px;">
-                    ${city}, ${state}
-                </div>
-
-                <div style="font-size:16px;margin-bottom:4px;">
-                    <strong>Climate Migration Archetype:</strong>
-                    <span style="color:${color};font-weight:700;">
-                        ${archetype}
-                    </span>
-                </div>
-
-                <div style="font-size:16px;color:#444;">
-                    This archetype is defined as:<br>
-                    <em>${definition}</em>
-                </div>
-
-            </div>
-        `;
+    const features = map.queryRenderedFeatures(e.point, {
+        layers: ['archetypePoints']
     });
+
+    if (!features.length) {
+        map.getCanvas().style.cursor = '';
+        tooltip.style.display = 'none';
+        return;
+    }
+
+    map.getCanvas().style.cursor = 'pointer';
+
+    const p = features[0]?.properties;
+    if (!p) return;
+
+    const city = p.NAME || p.name || "Unknown";
+    const state = p.STATE_NAME || "NA";
+
+    tooltip.style.display = 'block';
+    tooltip.style.left = e.point.x + 15 + 'px';
+    tooltip.style.top = e.point.y + 15 + 'px';
+
+    tooltip.innerHTML = `
+        <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
+            <div style="font-size:20px;font-weight:600;">
+                ${city}, ${state}
+            </div>
+        </div>
+    `;
+});
 
 
     // =========================
@@ -258,29 +233,36 @@ map.on('load', function () {
         const definition = archetypeDefinitions[archetype] || "No definition available";
 
         new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(`
-                <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
+    .setLngLat(e.lngLat)
+    .setHTML(`
+        <div style="font-family:'Apercu Pro', Arial, sans-serif;color:#111;">
 
-                    <div style="font-size:24px;font-weight:600;margin-bottom:8px;">
-                        ${city}, ${state}
-                    </div>
+            <div style="font-size:24px;font-weight:600;margin-bottom:8px;">
+                ${city}, ${state}
+            </div>
 
-                    <div style="font-size:16px;margin-bottom:4px;">
-                        <strong>Climate Migration Archetype:</strong>
-                        <span style="color:${color};font-weight:700;">
-                            ${archetype}
-                        </span>
-                    </div>
+            <div style="font-size:16px;margin-bottom:4px;">
+                <strong>Climate Migration Archetype:</strong>
+                <span style="color:${color};font-weight:700;">
+                    ${archetype}
+                </span>
+            </div>
 
-                    <div style="font-size:16px;color:#444;">
-                        This archetype is generally considered to be:<br>
-                        <em>${definition}</em>
-                    </div>
+            <div style="font-size:16px;color:#444;margin-bottom:10px;">
+                This archetype is generally considered to be:<br>
+                <em>${definition}</em>
+            </div>
 
-                </div>
-            `)
-            .addTo(map);
+            <hr style="margin:10px 0;">
+
+            <div style="font-size:16px;margin-bottom:6px;">
+                <strong>Average Risk Score:</strong>
+                ${p.avg_risk_score ?? "N/A"}
+            </div>
+
+        </div>
+    `)
+    .addTo(map);
     });
 
 });
